@@ -27,13 +27,12 @@ public class ConfigPropertySourceFactory {
 
   public ConfigPropertySource getConfigPropertySource(String name, Config source) {
     ConfigPropertySource configPropertySource = new ConfigPropertySource(name, source);
-
     configPropertySources.add(configPropertySource);
-
     return configPropertySource;
   }
 
   public List<ConfigPropertySource> getAllConfigPropertySources() {
+    // 深拷贝！
     return Lists.newLinkedList(configPropertySources);
   }
 }

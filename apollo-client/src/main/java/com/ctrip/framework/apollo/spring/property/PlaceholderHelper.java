@@ -27,7 +27,7 @@ import org.springframework.beans.factory.config.Scope;
 import org.springframework.util.StringUtils;
 
 /**
- * Placeholder helper functions.
+ * 占位符辅助类
  */
 public class PlaceholderHelper {
 
@@ -39,31 +39,26 @@ public class PlaceholderHelper {
   private static final String EXPRESSION_SUFFIX = "}";
 
   /**
-   * Resolve placeholder property values, e.g.
-   * <br />
-   * <br />
+   * 需后续本地测试
+   * 解析占位符
    * "${somePropertyValue}" -> "the actual property value"
    */
   public Object resolvePropertyValue(ConfigurableBeanFactory beanFactory, String beanName, String placeholder) {
-    // resolve string value
+    // 解析占位符
     String strVal = beanFactory.resolveEmbeddedValue(placeholder);
-
-    BeanDefinition bd = (beanFactory.containsBean(beanName) ? beanFactory
-        .getMergedBeanDefinition(beanName) : null);
+    // 获取BeanDefinition
+    BeanDefinition bd = (beanFactory.containsBean(beanName) ? beanFactory.getMergedBeanDefinition(beanName) : null);
 
     // resolve expressions like "#{systemProperties.myProp}"
     return evaluateBeanDefinitionString(beanFactory, strVal, bd);
   }
 
-  private Object evaluateBeanDefinitionString(ConfigurableBeanFactory beanFactory, String value,
-      BeanDefinition beanDefinition) {
+  private Object evaluateBeanDefinitionString(ConfigurableBeanFactory beanFactory, String value, BeanDefinition beanDefinition) {
     if (beanFactory.getBeanExpressionResolver() == null) {
       return value;
     }
-    Scope scope = (beanDefinition != null ? beanFactory
-        .getRegisteredScope(beanDefinition.getScope()) : null);
-    return beanFactory.getBeanExpressionResolver()
-        .evaluate(value, new BeanExpressionContext(beanFactory, scope));
+    Scope scope = (beanDefinition != null ? beanFactory.getRegisteredScope(beanDefinition.getScope()) : null);
+    return beanFactory.getBeanExpressionResolver().evaluate(value, new BeanExpressionContext(beanFactory, scope));
   }
 
   /**

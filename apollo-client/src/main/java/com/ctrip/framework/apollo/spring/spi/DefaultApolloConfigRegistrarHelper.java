@@ -47,13 +47,16 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
         .fromMap(importingClassMetadata.getAnnotationAttributes(EnableApolloConfig.class.getName()));
     final String[] namespaces = attributes.getStringArray("value");
     final int order = attributes.getNumber("order");
+    // 解析所有namespace，避免有占位符的namespace
     final String[] resolvedNamespaces = this.resolveNamespaces(namespaces);
+    // 添加到处理器
     PropertySourcesProcessor.addNamespaces(Lists.newArrayList(resolvedNamespaces), order);
 
     Map<String, Object> propertySourcesPlaceholderPropertyValues = new HashMap<>();
     propertySourcesPlaceholderPropertyValues.put("order", 0);
-    // 以environment为数据源，解析@Value和配置里的占位符
+    // 以environment为数据源，初次启动时解析@Value和配置文件里的占位符
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
+    // 热更新：监听字段修改，解析@Value的占位符，通过反射写回去，实现@Value的热更新
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, AutoUpdateConfigChangeListener.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesProcessor.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class);

@@ -21,9 +21,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 
 /**
+ * 需要本地测试
  * Spring @Value method info
  *
  * @author github.com/zhegexiaohuozi  seimimaster@gmail.com
@@ -87,8 +90,7 @@ public class SpringValue {
     field.setAccessible(accessible);
   }
 
-  private void injectMethod(Object newVal)
-      throws InvocationTargetException, IllegalAccessException {
+  private void injectMethod(Object newVal) throws InvocationTargetException, IllegalAccessException {
     Object bean = beanRef.get();
     if (bean == null) {
       return;

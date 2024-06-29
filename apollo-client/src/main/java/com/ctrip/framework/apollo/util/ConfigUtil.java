@@ -429,8 +429,7 @@ public class ConfigUtil {
     String enableAutoUpdate = System.getProperty("apollo.autoUpdateInjectedSpringProperties");
     if (Strings.isNullOrEmpty(enableAutoUpdate)) {
       // 2. Get from app.properties
-      enableAutoUpdate = Foundation.app()
-          .getProperty("apollo.autoUpdateInjectedSpringProperties", null);
+      enableAutoUpdate = Foundation.app().getProperty("apollo.autoUpdateInjectedSpringProperties", null);
     }
     if (!Strings.isNullOrEmpty(enableAutoUpdate)) {
       autoUpdateInjectedSpringProperties = Boolean.parseBoolean(enableAutoUpdate.trim());

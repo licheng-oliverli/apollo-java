@@ -33,14 +33,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 
+/**
+ * （完结）
+ * 每个beanFactory对应多个@Value配置注册进map，每5秒清理虚引用不可用的key
+ * Tips：LinkedListMultimap一个key会有多个value，每次新增不会覆盖本地测试
+ */
 public class SpringValueRegistry {
   private static final Logger logger = LoggerFactory.getLogger(SpringValueRegistry.class);
 
   private static final long CLEAN_INTERVAL_IN_SECONDS = 5;
+  // BeanFactory <key, value>
   private final Map<BeanFactory, Multimap<String, SpringValue>> registry = Maps.newConcurrentMap();
   private final AtomicBoolean initialized = new AtomicBoolean(false);
   private final Object LOCK = new Object();
 
+
+  // 注册key、value
   public void register(BeanFactory beanFactory, String key, SpringValue springValue) {
     if (!registry.containsKey(beanFactory)) {
       synchronized (LOCK) {
@@ -49,37 +57,23 @@ public class SpringValueRegistry {
         }
       }
     }
-
     registry.get(beanFactory).put(key, springValue);
-
-    // lazy initialize
     if (initialized.compareAndSet(false, true)) {
       initialize();
     }
   }
 
-  public Collection<SpringValue> get(BeanFactory beanFactory, String key) {
-    Multimap<String, SpringValue> beanFactorySpringValues = registry.get(beanFactory);
-    if (beanFactorySpringValues == null) {
-      return null;
-    }
-    return beanFactorySpringValues.get(key);
-  }
-
   private void initialize() {
-    Executors.newSingleThreadScheduledExecutor(ApolloThreadFactory.create("SpringValueRegistry", true)).scheduleAtFixedRate(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              scanAndClean();
-            } catch (Throwable ex) {
-              logger.error(ex.getMessage(), ex);
-            }
-          }
-        }, CLEAN_INTERVAL_IN_SECONDS, CLEAN_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
+    Executors.newSingleThreadScheduledExecutor(ApolloThreadFactory.create("SpringValueRegistry", true)).scheduleAtFixedRate(() -> {
+              try {
+                scanAndClean();
+              } catch (Throwable ex) {
+                logger.error(ex.getMessage(), ex);
+              }
+            }, CLEAN_INTERVAL_IN_SECONDS, CLEAN_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
   }
 
+  // 遍历所有不可用的value（虚引用为空的）
   private void scanAndClean() {
     Iterator<Multimap<String, SpringValue>> iterator = registry.values().iterator();
     while (!Thread.currentThread().isInterrupted() && iterator.hasNext()) {
@@ -94,4 +88,13 @@ public class SpringValueRegistry {
       }
     }
   }
+
+  public Collection<SpringValue> get(BeanFactory beanFactory, String key) {
+    Multimap<String, SpringValue> beanFactorySpringValues = registry.get(beanFactory);
+    if (beanFactorySpringValues == null) {
+      return null;
+    }
+    return beanFactorySpringValues.get(key);
+  }
+
 }

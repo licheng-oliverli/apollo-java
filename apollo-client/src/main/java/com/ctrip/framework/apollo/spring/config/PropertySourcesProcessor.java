@@ -44,22 +44,14 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.*;
 
 /**
- * Apollo Property Sources processor for Spring Annotation Based Application. <br /> <br />
+ * 基于注解的配置源处理器
  *
- * The reason why PropertySourcesProcessor implements {@link BeanFactoryPostProcessor} instead of
- * {@link org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor} is that lower versions of
- * Spring (e.g. 3.1.1) doesn't support registering BeanDefinitionRegistryPostProcessor in ImportBeanDefinitionRegistrar
- * - {@link com.ctrip.framework.apollo.spring.annotation.ApolloConfigRegistrar}
- *
- * @author Jason Song(song_s@ctrip.com)
  */
-public class PropertySourcesProcessor implements BeanFactoryPostProcessor, EnvironmentAware,
-    ApplicationEventPublisherAware, PriorityOrdered {
+public class PropertySourcesProcessor implements BeanFactoryPostProcessor, EnvironmentAware, ApplicationEventPublisherAware, PriorityOrdered {
   private static final Multimap<Integer, String> NAMESPACE_NAMES = LinkedHashMultimap.create();
   private static final Set<BeanFactory> AUTO_UPDATE_INITIALIZED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
 
-  private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
-      .getInstance(ConfigPropertySourceFactory.class);
+  private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector.getInstance(ConfigPropertySourceFactory.class);
   private ConfigUtil configUtil;
   private ConfigurableEnvironment environment;
   private ApplicationEventPublisher applicationEventPublisher;
