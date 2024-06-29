@@ -51,11 +51,9 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
     PropertySourcesProcessor.addNamespaces(Lists.newArrayList(resolvedNamespaces), order);
 
     Map<String, Object> propertySourcesPlaceholderPropertyValues = new HashMap<>();
-    // to make sure the default PropertySourcesPlaceholderConfigurer's priority is higher than PropertyPlaceholderConfigurer
     propertySourcesPlaceholderPropertyValues.put("order", 0);
-
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class,
-            propertySourcesPlaceholderPropertyValues);
+    // 以environment为数据源，解析@Value和配置里的占位符
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, AutoUpdateConfigChangeListener.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesProcessor.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class);

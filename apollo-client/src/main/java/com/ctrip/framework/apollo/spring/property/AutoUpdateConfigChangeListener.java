@@ -45,16 +45,17 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Create by zhangzheng on 2018/3/6
+ * 1. 实现配置修改监听接口
+ * 2. 监听配置修改事件
+ * 最后都是调用onChange()
  */
-public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
-    ApplicationListener<ApolloConfigChangeEvent>, ApplicationContextAware {
+public class AutoUpdateConfigChangeListener implements ConfigChangeListener, ApplicationListener<ApolloConfigChangeEvent>, ApplicationContextAware {
 
-  private static final Logger logger = LoggerFactory.getLogger(
-      AutoUpdateConfigChangeListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(AutoUpdateConfigChangeListener.class);
 
   private final boolean typeConverterHasConvertIfNecessaryWithFieldParameter;
   private ConfigurableBeanFactory beanFactory;
+  // 配置文件读取字符串时的类型转换器
   private TypeConverter typeConverter;
   private final PlaceholderHelper placeholderHelper;
   private final SpringValueRegistry springValueRegistry;
@@ -62,9 +63,11 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
   private final ConfigUtil configUtil;
 
   public AutoUpdateConfigChangeListener() {
+    // 是否类型转换??
     this.typeConverterHasConvertIfNecessaryWithFieldParameter = testTypeConverterHasConvertIfNecessaryWithFieldParameter();
     this.placeholderHelper = SpringInjector.getInstance(PlaceholderHelper.class);
     this.springValueRegistry = SpringInjector.getInstance(SpringValueRegistry.class);
+    // ?? 数据模式
     this.datePatternGsonMap = new ConcurrentHashMap<>();
     this.configUtil = ApolloInjector.getInstance(ConfigUtil.class);
   }
@@ -164,13 +167,13 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
 
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    //it is safe enough to cast as all known application context is derived from ConfigurableApplicationContext
     this.beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
     this.typeConverter = this.beanFactory.getTypeConverter();
   }
 
   @Override
   public void onApplicationEvent(ApolloConfigChangeEvent event) {
+    // 是否自动更新配置
     if (!configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
       return;
     }

@@ -65,6 +65,7 @@ public class ConfigUtil {
   private long configCacheExpireTime = 1;//1 minute
   private TimeUnit configCacheExpireTimeUnit = TimeUnit.MINUTES;//1 minute
   private long longPollingInitialDelayInMills = 2000;//2 seconds
+  // 是否自动更新配置
   private boolean autoUpdateInjectedSpringProperties = true;
   private final RateLimiter warnLogRateLimiter;
   private boolean propertiesOrdered = false;
