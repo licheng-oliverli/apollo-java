@@ -26,6 +26,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
+/**
+ * 用Guice注册器
+ */
 public class SpringInjector {
   private static volatile Injector s_injector;
   private static final Object lock = new Object();
@@ -53,8 +56,7 @@ public class SpringInjector {
       return getInjector().getInstance(clazz);
     } catch (Throwable ex) {
       Tracer.logError(ex);
-      throw new ApolloConfigException(
-          String.format("Unable to load instance for %s!", clazz.getName()), ex);
+      throw new ApolloConfigException(String.format("Unable to load instance for %s!", clazz.getName()), ex);
     }
   }
 

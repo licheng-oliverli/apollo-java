@@ -22,7 +22,7 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.foundation.internals.ServiceBootstrap;
 
 /**
- * @author Jason Song(song_s@ctrip.com)
+ * 默认用Guice注册器
  */
 public class ApolloInjector {
   private static volatile Injector s_injector;
