@@ -27,8 +27,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
  *
  * @author Jason Song(song_s@ctrip.com)
  */
-public class ConfigPropertySourcesProcessor extends PropertySourcesProcessor
-    implements BeanDefinitionRegistryPostProcessor {
+public class ConfigPropertySourcesProcessor extends PropertySourcesProcessor implements BeanDefinitionRegistryPostProcessor {
 
   private ConfigPropertySourcesProcessorHelper helper = ServiceBootstrap.loadPrimary(ConfigPropertySourcesProcessorHelper.class);
 

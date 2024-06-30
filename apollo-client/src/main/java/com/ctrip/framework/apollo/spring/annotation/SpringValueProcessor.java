@@ -45,10 +45,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Spring value processor of field or method which has @Value and xml config placeholders.
- *
- * @author github.com/zhegexiaohuozi  seimimaster@gmail.com  mghio.dev@gmail.com
- * @since 2017/12/20.
+ * 处理字段和方法上的@Value和xml
+ * 把标注@Value的字段和方法还有xml注册到SpringValueRegistry
  */
 public class SpringValueProcessor extends ApolloProcessor implements BeanFactoryPostProcessor, BeanFactoryAware {
 
@@ -69,17 +67,15 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
   }
 
   @Override
-  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
-      throws BeansException {
+  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+    // 初始化xml配置处理器
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled() && beanFactory instanceof BeanDefinitionRegistry) {
-      beanName2SpringValueDefinitions = SpringValueDefinitionProcessor
-          .getBeanName2SpringValueDefinitions((BeanDefinitionRegistry) beanFactory);
+      beanName2SpringValueDefinitions = SpringValueDefinitionProcessor.getBeanName2SpringValueDefinitions((BeanDefinitionRegistry) beanFactory);
     }
   }
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, String beanName)
-      throws BeansException {
+  public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
       super.postProcessBeforeInitialization(bean, beanName);
       processBeanPropertyValues(bean, beanName);
@@ -110,8 +106,7 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
       return;
     }
     if (method.getParameterTypes().length != 1) {
-      logger.error("Ignore @Value setter {}.{}, expecting 1 parameter, actual {} parameters",
-          bean.getClass().getName(), method.getName(), method.getParameterTypes().length);
+      logger.error("Ignore @Value setter {}.{}, expecting 1 parameter, actual {} parameters", bean.getClass().getName(), method.getName(), method.getParameterTypes().length);
       return;
     }
 
@@ -133,8 +128,7 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
         Method method = (Method) member;
         springValue = new SpringValue(key, value.value(), bean, beanName, method, false);
       } else {
-        logger.error("Apollo @Value annotation currently only support to be used on methods and fields, "
-            + "but is used on {}", member.getClass());
+        logger.error("Apollo @Value annotation currently only support to be used on methods and fields, " + "but is used on {}", member.getClass());
         return;
       }
       springValueRegistry.register(beanFactory, key, springValue);
@@ -143,22 +137,19 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
   }
 
   private void processBeanPropertyValues(Object bean, String beanName) {
-    Collection<SpringValueDefinition> propertySpringValues = beanName2SpringValueDefinitions
-        .get(beanName);
+    Collection<SpringValueDefinition> propertySpringValues = beanName2SpringValueDefinitions.get(beanName);
     if (propertySpringValues == null || propertySpringValues.isEmpty()) {
       return;
     }
 
     for (SpringValueDefinition definition : propertySpringValues) {
       try {
-        PropertyDescriptor pd = BeanUtils
-            .getPropertyDescriptor(bean.getClass(), definition.getPropertyName());
+        PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(bean.getClass(), definition.getPropertyName());
         Method method = pd.getWriteMethod();
         if (method == null) {
           continue;
         }
-        SpringValue springValue = new SpringValue(definition.getKey(), definition.getPlaceholder(),
-            bean, beanName, method, false);
+        SpringValue springValue = new SpringValue(definition.getKey(), definition.getPlaceholder(), bean, beanName, method, false);
         springValueRegistry.register(beanFactory, definition.getKey(), springValue);
         logger.debug("Monitoring {}", springValue);
       } catch (Throwable ex) {

@@ -39,8 +39,7 @@ public class PlaceholderHelper {
   private static final String EXPRESSION_SUFFIX = "}";
 
   /**
-   * 需后续本地测试
-   * 解析占位符
+   * 解析成具体值
    * "${somePropertyValue}" -> "the actual property value"
    */
   public Object resolvePropertyValue(ConfigurableBeanFactory beanFactory, String beanName, String placeholder) {
@@ -62,8 +61,7 @@ public class PlaceholderHelper {
   }
 
   /**
-   * Extract keys from placeholder, e.g.
-   * <ul>
+   * 提取key
    * <li>${some.key} => "some.key"</li>
    * <li>${some.key:${some.other.key:100}} => "some.key", "some.other.key"</li>
    * <li>${${some.key}} => "some.key"</li>

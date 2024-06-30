@@ -31,8 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Jason Song(song_s@ctrip.com)
  * @author Diego Krupitza(info@diegokrupitza.com)
  */
-public class PropertiesConfigFile extends AbstractConfigFile implements
-    PropertiesCompatibleConfigFile {
+public class PropertiesConfigFile extends AbstractConfigFile implements PropertiesCompatibleConfigFile {
 
   protected AtomicReference<String> m_contentCache;
 

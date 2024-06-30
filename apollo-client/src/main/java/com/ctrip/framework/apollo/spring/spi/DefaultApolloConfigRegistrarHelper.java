@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.spring.spi;
 import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor;
 import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
+import com.ctrip.framework.apollo.spring.annotation.SpringConfigurationPropertiesProcessor;
 import com.ctrip.framework.apollo.spring.annotation.SpringValueProcessor;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesProcessor;
 import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener;
@@ -43,8 +44,7 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
 
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-    AnnotationAttributes attributes = AnnotationAttributes
-        .fromMap(importingClassMetadata.getAnnotationAttributes(EnableApolloConfig.class.getName()));
+    AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableApolloConfig.class.getName()));
     final String[] namespaces = attributes.getStringArray("value");
     final int order = attributes.getNumber("order");
     // 解析所有namespace，避免有占位符的namespace
@@ -56,12 +56,18 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
     propertySourcesPlaceholderPropertyValues.put("order", 0);
     // 以environment为数据源，初次启动时解析@Value和配置文件里的占位符
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
-    // 热更新：监听字段修改，解析@Value的占位符，通过反射写回去，实现@Value的热更新
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, AutoUpdateConfigChangeListener.class);
+    // 初始化数据源：把注解里所有namespace初始化成PropertySource，添加到environment。config监听到配置修改时会推送changeEvent
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesProcessor.class);
+    // 热更新：SpringValueRegistry的配置修改时的回调，解析占位符，通过反射写回去，实现@Value的热更新
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, AutoUpdateConfigChangeListener.class);
+    // 用反射处理@ApolloConfig、@ApolloJsonValue、@ApolloConfigChangeListener，反射回调 + 注册到SpringValueRegistry
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class);
+    // 把标注@Value的字段和方法还有xml注册到SpringValueRegistry
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueProcessor.class);
+    // 待测试
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueDefinitionProcessor.class);
+    // 新增：@ConfigurationProperties配置自动更新
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringConfigurationPropertiesProcessor.class);
   }
 
   private String[] resolveNamespaces(String[] namespaces) {

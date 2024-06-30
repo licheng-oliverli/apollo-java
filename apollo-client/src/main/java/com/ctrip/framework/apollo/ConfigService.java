@@ -24,9 +24,7 @@ import com.ctrip.framework.apollo.spi.ConfigFactory;
 import com.ctrip.framework.apollo.spi.ConfigRegistry;
 
 /**
- * Entry point for client config use
- *
- * @author Jason Song(song_s@ctrip.com)
+ * 使用配置的入口
  */
 public class ConfigService {
   private static final ConfigService s_instance = new ConfigService();
@@ -68,10 +66,7 @@ public class ConfigService {
   }
 
   /**
-   * Get the config instance for the namespace.
-   *
-   * @param namespace the namespace of the config
-   * @return config instance
+   * 获取namespace的Config对象
    */
   public static Config getConfig(String namespace) {
     return s_instance.getManager().getConfig(namespace);

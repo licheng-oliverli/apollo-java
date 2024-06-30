@@ -21,6 +21,9 @@ import java.util.List;
 import com.ctrip.framework.apollo.Config;
 import com.google.common.collect.Lists;
 
+/**
+ * 数据源工厂
+ */
 public class ConfigPropertySourceFactory {
 
   private final List<ConfigPropertySource> configPropertySources = Lists.newLinkedList();

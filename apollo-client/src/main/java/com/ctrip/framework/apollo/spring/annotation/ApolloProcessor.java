@@ -27,15 +27,14 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Create by zhangzheng on 2018/2/6
+ * 处理所有bean的方法和字段!
+ * 符合条件的需要一个一个过滤
  */
 public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrdered {
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, String beanName)
-      throws BeansException {
+  public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     Class<?> clazz = bean.getClass();
-
     for (Field field : findAllField(clazz)) {
       processField(bean, beanName, field);
     }
@@ -60,6 +59,11 @@ public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrde
    * subclass should implement this method to process method
    */
   protected abstract void processMethod(Object bean, String beanName, Method method);
+
+  /**
+   * subclass should implement this method to process class
+   */
+  protected void processClass(Object bean, String beanName, Class<?> clazz){}
 
   @Override
   public int getOrder() {

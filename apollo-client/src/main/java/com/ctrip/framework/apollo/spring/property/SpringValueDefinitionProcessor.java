@@ -38,7 +38,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * To process xml config placeholders, e.g.
+ * 处理xml占位符，processPropertyValues()待测试??
  *
  * <pre>
  *  &lt;bean class=&quot;com.ctrip.framework.apollo.demo.spring.xmlConfigDemo.bean.XmlBean&quot;&gt;
@@ -48,8 +48,7 @@ import com.google.common.collect.Multimap;
  * </pre>
  */
 public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPostProcessor {
-  private static final Map<BeanDefinitionRegistry, Multimap<String, SpringValueDefinition>> beanName2SpringValueDefinitions =
-      Maps.newConcurrentMap();
+  private static final Map<BeanDefinitionRegistry, Multimap<String, SpringValueDefinition>> beanName2SpringValueDefinitions = Maps.newConcurrentMap();
   private static final Set<BeanDefinitionRegistry> PROPERTY_VALUES_PROCESSED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
 
   private final ConfigUtil configUtil;
@@ -73,8 +72,7 @@ public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPos
   }
 
   public static Multimap<String, SpringValueDefinition> getBeanName2SpringValueDefinitions(BeanDefinitionRegistry registry) {
-    Multimap<String, SpringValueDefinition> springValueDefinitions = beanName2SpringValueDefinitions.computeIfAbsent(
-        registry, k -> LinkedListMultimap.create());
+    Multimap<String, SpringValueDefinition> springValueDefinitions = beanName2SpringValueDefinitions.computeIfAbsent(registry, k -> LinkedListMultimap.create());
 
     return springValueDefinitions;
   }
