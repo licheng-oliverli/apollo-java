@@ -25,7 +25,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
 /**
- * @author Jason Song(song_s@ctrip.com)
+ * 集成Apollo Java启动方式
+ * ImportBeanDefinitionRegistrar：只针对标注@Import的bean，返回该bean的注解元数据，一般用在组件启动时注册需要的bean
+ * AnnotationMetadata：描述该Bean的所有注解
  */
 public class ApolloConfigRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 

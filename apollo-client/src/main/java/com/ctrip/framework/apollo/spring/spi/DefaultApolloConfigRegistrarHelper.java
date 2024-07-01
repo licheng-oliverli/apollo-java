@@ -37,8 +37,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
 public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrarHelper {
-  private static final Logger logger = LoggerFactory.getLogger(
-      DefaultApolloConfigRegistrarHelper.class);
+  private static final Logger logger = LoggerFactory.getLogger(DefaultApolloConfigRegistrarHelper.class);
 
   private Environment environment;
 
@@ -49,7 +48,7 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
     final int order = attributes.getNumber("order");
     // 解析所有namespace，避免有占位符的namespace
     final String[] resolvedNamespaces = this.resolveNamespaces(namespaces);
-    // 添加到处理器
+    // 数据源处理器添加所有namespace
     PropertySourcesProcessor.addNamespaces(Lists.newArrayList(resolvedNamespaces), order);
 
     Map<String, Object> propertySourcesPlaceholderPropertyValues = new HashMap<>();
@@ -70,6 +69,7 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringConfigurationPropertiesProcessor.class);
   }
 
+  // 如果@EnableApolloConfig里namespace里有占位符，解析占位符
   private String[] resolveNamespaces(String[] namespaces) {
     // no support for Spring version prior to 3.2.x, see https://github.com/apolloconfig/apollo/issues/4178
     if (this.environment == null) {

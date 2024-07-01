@@ -43,8 +43,7 @@ public class BeanRegistrationUtil {
     return registerBeanDefinitionIfNotExists(registry, beanClass, null);
   }
 
-  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, Class<?> beanClass,
-                                                          Map<String, Object> extraPropertyValues) {
+  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, Class<?> beanClass, Map<String, Object> extraPropertyValues) {
     return registerBeanDefinitionIfNotExists(registry, beanClass.getName(), beanClass, extraPropertyValues);
   }
 

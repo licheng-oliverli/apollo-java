@@ -23,9 +23,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 
 /**
- * Apollo Property Sources processor for Spring XML Based Application
- *
- * @author Jason Song(song_s@ctrip.com)
+ * 集成Apollo Spring Boot启动方式：apollo.bootstrap.enabled = true
  */
 public class ConfigPropertySourcesProcessor extends PropertySourcesProcessor implements BeanDefinitionRegistryPostProcessor {
 
