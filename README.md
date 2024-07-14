@@ -26,3 +26,5 @@ Spring：
 2. ConfigChangeEvent从哪发出来的
 3. ApolloInjector和SpringInjector的区别
 4. ConfigFile和Config的区别
+5. 关于list和map类型的key怎么解析！！！
+6. ConfigurationProperties的map、list需要提前存下来，判断startWith，刷新bean

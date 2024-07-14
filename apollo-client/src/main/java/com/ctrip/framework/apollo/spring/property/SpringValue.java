@@ -141,10 +141,8 @@ public class SpringValue {
       return "";
     }
     if (isField()) {
-      return String
-          .format("key: %s, beanName: %s, field: %s.%s", key, beanName, bean.getClass().getName(), field.getName());
+      return String.format("key: %s, beanName: %s, field: %s.%s", key, beanName, bean.getClass().getName(), field.getName());
     }
-    return String.format("key: %s, beanName: %s, method: %s.%s", key, beanName, bean.getClass().getName(),
-        methodParameter.getMethod().getName());
+    return String.format("key: %s, beanName: %s, method: %s.%s", key, beanName, bean.getClass().getName(), methodParameter.getMethod().getName());
   }
 }

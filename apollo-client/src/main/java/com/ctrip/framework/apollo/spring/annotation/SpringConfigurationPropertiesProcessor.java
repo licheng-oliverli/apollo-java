@@ -17,72 +17,76 @@
 package com.ctrip.framework.apollo.spring.annotation;
 
 import com.ctrip.framework.apollo.build.ApolloInjector;
-import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.spring.property.SpringConfigurationPropertyRegistry;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
- * 处理字段和方法上的@Value和xml
- * 把标注@Value的字段和方法还有xml注册到SpringValueRegistry
+ * 处理@ConfigurationProperties + @RefreshScope的类
  */
-public class SpringConfigurationPropertiesProcessor extends ApolloProcessor implements BeanFactoryAware {
+public class SpringConfigurationPropertiesProcessor implements ApplicationContextAware, BeanPostProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpringConfigurationPropertiesProcessor.class);
+  private static final Logger logger = LoggerFactory.getLogger(SpringConfigurationPropertiesProcessor.class);
 
-    private final ConfigUtil configUtil;
-    private final SpringValueRegistry springValueRegistry;
-    private BeanFactory beanFactory;
+  private final ConfigUtil configUtil;
+  private final SpringConfigurationPropertyRegistry springConfigurationPropertyRegistry;
+  private ConfigurableBeanFactory beanFactory;
+  private ConfigurableEnvironment environment;
 
-    public SpringConfigurationPropertiesProcessor() {
-        springValueRegistry = SpringInjector.getInstance(SpringValueRegistry.class);
-        configUtil = ApolloInjector.getInstance(ConfigUtil.class);
+  public SpringConfigurationPropertiesProcessor() {
+    springConfigurationPropertyRegistry = SpringInjector.getInstance(SpringConfigurationPropertyRegistry.class);
+    configUtil = ApolloInjector.getInstance(ConfigUtil.class);
+  }
+
+  /**
+   * 1. 要开启自动更新 2. 是@ConfigurationProperties 3. 是@RefreshScope 4.
+   * beanFactory里有xxx.xxx.RefreshScope的Bean 5. 回调调用RefreshScope的refresh()
+   */
+  @Override
+  public Object postProcessBeforeInitialization(Object bean, String beanName) {
+    Class<?> clazz = bean.getClass();
+    ConfigurationProperties configurationPropertiesAnnotation = clazz.getDeclaredAnnotation(ConfigurationProperties.class);
+    ApolloConfigurationPropertiesRefresh apolloConfigurationPropertiesRefreshAnnotation = clazz.getDeclaredAnnotation(ApolloConfigurationPropertiesRefresh.class);
+    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled() && configurationPropertiesAnnotation != null && (
+        apolloConfigurationPropertiesRefreshAnnotation != null || isRefreshScope(clazz.getDeclaredAnnotations()))) {
+      String prefix = configurationPropertiesAnnotation.prefix();
+      springConfigurationPropertyRegistry.register(this.beanFactory, prefix, bean, environment);
+      logger.info("Monitoring bean {}", beanName);
     }
+    return bean;
+  }
 
-    @Override
-    protected void processField(Object bean, String beanName, Field field) {
+  private boolean isRefreshScope(Annotation[] annotations) {
+    for (Annotation annotation : annotations) {
+      if (annotation.annotationType().getName().equals("org.springframework.cloud.context.config.annotation.RefreshScope")) {
+        return true;
+      }
     }
+    return false;
+  }
 
-    @Override
-    protected void processMethod(Object bean, String beanName, Method method) {
-    }
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    ConfigurableApplicationContext context = ((ConfigurableApplicationContext) applicationContext);
+    this.beanFactory = context.getBeanFactory();
+    this.environment = context.getEnvironment();
+  }
 
-    /**
-     * 1. 要开启自动更新
-     * 2. 是@ConfigurationProperties
-     * 3. 是@RefreshScope
-     * 4. beanFactory里有xxx.xxx.RefreshScope的Bean
-     * 5. 回调调用RefreshScope的refresh()
-     */
-    @Override
-    protected void processClass(Object bean, String beanName, Class<?> clazz) {
-        try {
-            ConfigurationProperties configurationPropertiesAnnotation = clazz.getDeclaredAnnotation(ConfigurationProperties.class);
-            if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled() && configurationPropertiesAnnotation != null) {
-                for(Annotation annotation : clazz.getDeclaredAnnotations()){
-                    if (annotation.getClass() == Class.forName("xxx.xxx.RefreshScope")) {
-                        // todo beanFactory里有xxx.xxx.RefreshScope的Bean
-                        // todo 回调调用RefreshScope的refresh()
-                    }
-                }
-
-            }
-        } catch (ClassNotFoundException e) {
-            logger.warn("RefreshScope class not found!", e);
-        }
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-    }
 }

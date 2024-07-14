@@ -47,7 +47,6 @@ public class SpringValueRegistry {
   private final AtomicBoolean initialized = new AtomicBoolean(false);
   private final Object LOCK = new Object();
 
-
   // 注册key、value
   public void register(BeanFactory beanFactory, String key, SpringValue springValue) {
     if (!registry.containsKey(beanFactory)) {
