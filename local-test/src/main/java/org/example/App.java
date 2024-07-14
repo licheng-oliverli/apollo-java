@@ -20,27 +20,28 @@ import java.util.Set;
 /**
  * Hello world!
  */
-@EnableApolloConfig(value = {"application","test1","test.yml","test2"})
+@EnableApolloConfig(value = {"application", "test1", "test.yml", "test2.yaml"})
 @SpringBootApplication
 @RestController
 @Import(ImportTest.class)
 public class App {
-    @Autowired
-    private RefreshScopeTest1 refreshScopeTest1;
 
-    @Autowired
-    private BindHelper bindHelper;
+  @Autowired
+  private RefreshScopeTest1 refreshScopeTest1;
 
-    @Autowired
-    private Data data;
+  @Autowired
+  private BindHelper bindHelper;
 
-    @Autowired
-    private Data1 data1;
+  @Autowired
+  private Data data;
 
-    @GetMapping("/test")
-    public String test() {
-        return refreshScopeTest1.str();
-    }
+  @Autowired
+  private Data1 data1;
+
+  @GetMapping("/test")
+  public String test() {
+    return refreshScopeTest1.str();
+  }
 
 //    @Override
 //    public String toString() {
@@ -53,7 +54,7 @@ public class App {
 //                '}';
 //    }
 
-    public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(App.class, args);
+  }
 }

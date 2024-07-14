@@ -17,41 +17,40 @@
 package com.ctrip.framework.apollo.spring.annotation;
 
 import com.ctrip.framework.apollo.build.ApolloInjector;
-import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.spring.property.SpringConfigurationPropertyRegistry;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import java.lang.annotation.Annotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 /**
  * 处理@ConfigurationProperties + @RefreshScope的类
  */
-public class SpringConfigurationPropertiesProcessor implements ApplicationContextAware, BeanPostProcessor {
+public class SpringConfigurationPropertiesProcessor implements ApplicationContextAware,
+    BeanPostProcessor {
 
-  private static final Logger logger = LoggerFactory.getLogger(SpringConfigurationPropertiesProcessor.class);
+  private static final Logger logger = LoggerFactory.getLogger(
+      SpringConfigurationPropertiesProcessor.class);
+  private static final String REFRESH_SCOPE_NAME = "org.springframework.cloud.context.config.annotation.RefreshScope";
+
 
   private final ConfigUtil configUtil;
   private final SpringConfigurationPropertyRegistry springConfigurationPropertyRegistry;
-  private ConfigurableBeanFactory beanFactory;
+  private ConfigurableListableBeanFactory beanFactory;
   private ConfigurableEnvironment environment;
 
   public SpringConfigurationPropertiesProcessor() {
-    springConfigurationPropertyRegistry = SpringInjector.getInstance(SpringConfigurationPropertyRegistry.class);
+    springConfigurationPropertyRegistry = SpringInjector.getInstance(
+        SpringConfigurationPropertyRegistry.class);
     configUtil = ApolloInjector.getInstance(ConfigUtil.class);
   }
 
@@ -62,10 +61,14 @@ public class SpringConfigurationPropertiesProcessor implements ApplicationContex
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName) {
     Class<?> clazz = bean.getClass();
-    ConfigurationProperties configurationPropertiesAnnotation = clazz.getDeclaredAnnotation(ConfigurationProperties.class);
-    ApolloConfigurationPropertiesRefresh apolloConfigurationPropertiesRefreshAnnotation = clazz.getDeclaredAnnotation(ApolloConfigurationPropertiesRefresh.class);
-    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled() && configurationPropertiesAnnotation != null && (
-        apolloConfigurationPropertiesRefreshAnnotation != null || isRefreshScope(clazz.getDeclaredAnnotations()))) {
+    ConfigurationProperties configurationPropertiesAnnotation = clazz.getDeclaredAnnotation(
+        ConfigurationProperties.class);
+    ApolloConfigurationPropertiesRefresh apolloConfigurationPropertiesRefreshAnnotation = clazz.getDeclaredAnnotation(
+        ApolloConfigurationPropertiesRefresh.class);
+    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()
+        && configurationPropertiesAnnotation != null && (
+        apolloConfigurationPropertiesRefreshAnnotation != null || isRefreshScope(
+            clazz.getDeclaredAnnotations()))) {
       String prefix = configurationPropertiesAnnotation.prefix();
       springConfigurationPropertyRegistry.register(this.beanFactory, prefix, bean, environment);
       logger.info("Monitoring bean {}", beanName);
@@ -75,7 +78,7 @@ public class SpringConfigurationPropertiesProcessor implements ApplicationContex
 
   private boolean isRefreshScope(Annotation[] annotations) {
     for (Annotation annotation : annotations) {
-      if (annotation.annotationType().getName().equals("org.springframework.cloud.context.config.annotation.RefreshScope")) {
+      if (annotation.annotationType().getName().equals(REFRESH_SCOPE_NAME)) {
         return true;
       }
     }
